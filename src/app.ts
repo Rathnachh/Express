@@ -1,4 +1,4 @@
-import express, { Application, Request, Response, NextFunction  } from "express";
+import express, { Application, Request, Response, NextFunction } from "express";
 import { studentRouter } from "./routes/student.route";
 import connectToDatabase from "./utils/dbConnection";
 import { userRouter } from "./routes/user.route";
@@ -17,16 +17,22 @@ app.set("views", path.join(__dirname, "/views"));
 
 //global middleware
 app.use(express.json());
+
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello Express and TypeScript");
+  // res.status(StatusCodes.SUCCESS).send(StatusMessages[StatusCodes.SUCCESS]); //status code usage
 });
 
+app.get("/", (req: Request, res: Response) => {
+  // res
+  //   .status(StatusCodes.UNAUTHORIZED)
+  //   .send(StatusMessages[StatusCodes.UNAUTHORIZED]);
+});
 // app.get("/student", (req: Request, res: Response) => {
 //   res.send("Hello from student");
 // });
 
-
-
+//sub global middleware
 app.use("/student", studentRouter);
 app.use("/user", userRouter);
 app.use("/movie", movieRouter);
@@ -36,9 +42,16 @@ app.use("/movie", movieRouter);
 // });
 
 // Global error handler middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).send("Something went wrong.");
+// app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+//   console.error(err.stack);
+//   res.status(500).send("Something went wrong.");
+// });
+
+// Global Error Handler
+app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+  res.status(500).json({
+    message: err.message,
+  });
 });
 
 connectToDatabase().then(() => {
@@ -56,4 +69,4 @@ const requestLogger = (req: Request, res: Response, next: NextFunction) => {
 app.use(requestLogger);
 
 // module.exports = app;
-export default app
+export default app;
