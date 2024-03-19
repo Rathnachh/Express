@@ -71,8 +71,8 @@ export const movieController = {
   // },
   deleteById: async function (req: Request, res: Response) {
     try {
-      await movieModel.deleteOne({ _id: req.params.movieId });
-      const movies = await movieModel.findByIdAndDelete(movieModel);
+      const movies = await movieModel.deleteOne({ _id: req.params.movieId });
+      // const movies = await movieModel.findByIdAndDelete(movieModel);
       if (!movies) {
         res.status(statusCodes.NOT_FOUND).json({
           status: statusCodes.NOT_FOUND,
@@ -84,7 +84,7 @@ export const movieController = {
           .json({
             status: statusCodes.SUCCESS,
             message: statusMessages[statusCodes.SUCCESS],
-            data: null,
+          
           })
           .end();
       }
