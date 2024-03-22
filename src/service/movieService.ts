@@ -1,100 +1,68 @@
-
 import { Request, Response, NextFunction } from "express";
 import { statusCodes } from "../utils/const/statusCode";
 import { statusMessages } from "../utils/const/statusCode";
-import { movieRepository } from "../database/repository/movieRepo";
+import { MovieRepository } from "../database/repository/movieRepo";
 
-export const movieService = {
-  getById: async (req: Request, res: Response, _next: NextFunction) => {
-    try {
-      const m = await movieRepository.findById(req.params.movieId);
-      if (m) {
-        res.status(statusCodes.SUCCESS).json({
-          status: statusCodes.SUCCESS,
-          message: statusMessages[statusCodes.SUCCESS],
-          data: m,
-        });
-      } else {
-        _next(new Error("Movie not found!!!"));
-      }
-    } catch (err) {
-      res.status(statusCodes.SERVER_ERROR).json({
-        status: statusCodes.SERVER_ERROR,
-        message: statusMessages[statusCodes.SERVER_ERROR],
-      });
+
+  export class MovieService {
+    static async getById(req: Request, res: Response, next: NextFunction) {
+        try {
+            const movieId = req.params.movieId;
+            const movie = await MovieRepository.findById(movieId);
+            if (!movie) {
+                return res.status(404).json({ error: "Movie not found" });
+            }
+            res.json(movie);
+        } catch (error) {
+            console.error("Error fetching movie by ID:", error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
     }
-  },
-  getAll: async (req: Request, res: Response) => {
-    try {
-      const movies = await movieRepository.findAll();
-      res.status(statusCodes.SUCCESS).json({
-        status: statusCodes.SUCCESS,
-        message: statusMessages[statusCodes.SUCCESS],
-        data: movies,
-      });
-    } catch (err) {
-      res.status(statusCodes.SERVER_ERROR).json({
-        status: statusCodes.SERVER_ERROR,
-        message: statusMessages[statusCodes.SERVER_ERROR],
-      });
+
+    static async getAll(req: Request, res: Response) {
+        try {
+            const movies = await MovieRepository.findAll();
+            res.json(movies);
+        } catch (error) {
+            console.error("Error fetching all movies:", error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
     }
-  },
-  updateById: async (req: Request, res: Response) => {
-    try {
-      const m = await movieRepository.updateById(req.params.movieId, {
-        name: req.body.name,
-        released_on: req.body.released_on,
-      });
-      res.status(statusCodes.SUCCESS).json({
-        status: statusCodes.SUCCESS,
-        message: statusMessages[statusCodes.SUCCESS],
-        data: m,
-      });
-    } catch (err) {
-      res.status(statusCodes.SERVER_ERROR).json({
-        status: statusCodes.SERVER_ERROR,
-        message: statusMessages[statusCodes.SERVER_ERROR],
-      });
+
+    static async updateById(req: Request, res: Response) {
+        try {
+            const movieId = req.params.movieId;
+            const updatedMovie = await MovieRepository.updateById(movieId, req.body);
+            res.json(updatedMovie);
+        } catch (error) {
+            console.error("Error updating movie by ID:", error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
     }
-  },
-  deleteById: async (req: Request, res: Response) => {
-    try {
-      const movies = await movieRepository.deleteById(req.params.movieId);
-      if (!movies) {
-        res.status(statusCodes.NOT_FOUND).json({
-          status: statusCodes.NOT_FOUND,
-          message: statusMessages[statusCodes.NOT_FOUND],
-        });
-      } else {
-        res.status(statusCodes.SUCCESS).json({
-          status: statusCodes.SUCCESS,
-          message: statusMessages[statusCodes.SUCCESS],
-        });
-      }
-    } catch (err) {
-      res.status(statusCodes.SERVER_ERROR).json({
-        status: statusCodes.SERVER_ERROR,
-        message: statusMessages[statusCodes.SERVER_ERROR],
-      });
+
+    static async deleteById(req: Request, res: Response) {
+        try {
+            const movieId = req.params.movieId;
+            const deletedMovie = await MovieRepository.deleteById(movieId);
+            if (!deletedMovie) {
+                return res.status(404).json({ error: "Movie not found" });
+            }
+            res.json(deletedMovie);
+        } catch (error) {
+            console.error("Error deleting movie by ID:", error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
     }
-  },
-  create: async (req: Request, res: Response) => {
-    try {
-      const movieData = {
-        name: req.body.name,
-        released_on: req.body.released_on,
-      };
-      const m = await movieRepository.create(movieData);
-      res.json({
-        status: statusCodes.SUCCESS,
-        message: statusMessages[statusCodes.SUCCESS],
-        data: m,
-      });
-    } catch (err) {
-      res.status(statusCodes.SERVER_ERROR).json({
-        status: statusCodes.SERVER_ERROR,
-        message: statusMessages[statusCodes.SERVER_ERROR],
-      });
+
+    static async create(req: Request, res: Response) {
+        try {
+            const movieData = req.body;
+            const newMovie = await MovieRepository.create(movieData);
+            res.json(newMovie);
+        } catch (error) {
+            console.error("Error creating movie:", error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
     }
-  },
-};
+}
+

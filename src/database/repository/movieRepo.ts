@@ -1,19 +1,23 @@
 import { movieModel } from "../models/movieModel";
 
-export const movieRepository = {
-    findById: async (movieId: string) => {
-      return await movieModel.findById(movieId);
-    },
-    findAll: async () => {
-      return await movieModel.find({});
-    },
-    updateById: async (movieId: string, movieData: any) => {
-      return await movieModel.findByIdAndUpdate(movieId, movieData);
-    },
-    deleteById: async (movieId: string) => {
-      return await movieModel.deleteOne({ _id: movieId });
-    },
-    create: async (movieData: any) => {
-      return await new movieModel(movieData).save();
-    },
-  };
+export class MovieRepository {
+  static async findById(movieId: string) {
+    return await movieModel.findById(movieId);
+  }
+
+  static async findAll() {
+    return await movieModel.find({});
+  }
+
+  static async updateById(movieId: string, movieData: any) {
+    return await movieModel.findByIdAndUpdate(movieId, movieData);
+  }
+
+  static async deleteById(movieId: string) {
+    return await movieModel.findByIdAndDelete(movieId);
+  }
+
+  static async create(movieData: any) {
+    return await new movieModel(movieData).save();
+  }
+}
