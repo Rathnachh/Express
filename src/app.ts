@@ -1,25 +1,32 @@
-import express, { Application, Request, Response, NextFunction } from "express";
-import connectToDatabase from "./utils/dbConnection";
-import createServer from "./utils/server";
-// import bodyParser from "body-parser";
+import express, { Express, NextFunction, Request, Response } from "express";
+import { studentRouter } from "./routes/student.route";
+import { movieRouter } from "./routes/movie.route";
+import path from "path";
+import { swaggerDocument } from "./swagger";
+import swaggerUi from "swagger-ui-express";
 
-// const app: Application = express();
-const app = createServer;
-const port = 4000; // Changed the port number to 4000
+const app = express();
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "/views"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-connectToDatabase().then(() => {
-  app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("Hello Express and TypeScript");
+});
+
+app.use("/student", studentRouter);
+app.use("/movie", movieRouter);
+//   app.use(express.json());
+// app.use("/movies", movieRoutes);
+
+app.all("*", (err: Error, req: Request, res: Response, _next: NextFunction) => {
+  res.status(500).json({
+    message: err.message,
   });
 });
 
-// create global middleware that include the time that client request
-// const requestLogger = (req: Request, res: Response, next: NextFunction) => {
-//   console.log(`Request received at ${new Date()}`);
-//   next();
-// };
 
-// app.use(requestLogger);
 
-// module.exports = app;
 export default app;

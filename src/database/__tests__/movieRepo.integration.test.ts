@@ -1,83 +1,87 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose from 'mongoose';
-import { MovieRepository } from '../../database/repository/movieRepo';
+import { MongoMemoryServer } from "mongodb-memory-server";
+import mongoose from "mongoose";
+import { MovieRepository } from "../../database/repository/movieRepo";
 import { dbConnect, dbDisconnect } from "../../utils/test-utils/dbhandler";
 import { MovieService } from "../../service/movieService";
 
 let mongoServer: MongoMemoryServer;
 
 beforeAll(async () => {
-    await dbConnect()
-   });
- 
-   afterAll(async () => {
-    await dbDisconnect()
-   });
+  await dbConnect();
+});
 
-describe('Movie Integration test', () => {
-    let movieRepository: MovieRepository;
+afterAll(async () => {
+  await dbDisconnect();
+});
 
-    beforeEach(async () => {
-        movieRepository = new MovieRepository();
-    });
+describe("Movie Integration test", () => {
+  let movieRepository: MovieRepository;
 
-    test("should add a new movie to the database", async () => {
-        // Define the movie data to be added
-        const movieData = {
-            name: "Test Movie",
-            released_on: new Date("2024-03-21"),
-        };
+  beforeEach(async () => {
+    movieRepository = new MovieRepository();
+  });
 
-        // Add the movie to the database
-        const newMovie = await MovieRepository.create(movieData);
+  test("should add a new movie to the database", async () => {
+    // Define the movie data to be added
+    const movieData = {
+      name: "Test Movie",
+      released_on: new Date("2024-03-21"),
+    };
 
-        // Assert that the added movie exists and has the correct data
-        expect(newMovie).toBeDefined();
-        expect(newMovie.name).toBe(movieData.name);
-        expect(newMovie.released_on.toISOString()).toBe(movieData.released_on.toISOString());
-    });
+    // Add the movie to the database
+    const newMovie = await MovieRepository.create(movieData);
 
-    //show error when movie create fail
-    test("should throw an error when movie creation fails", async () => {
-        // Define the movie data to be added
-        const movieData = {
-            name: "Test Movie",
-            released_on: new Date("2024-03-21"),
-        };
+    // Assert that the added movie exists and has the correct data
+    expect(newMovie).toBeDefined();
+    expect(newMovie.name).toBe(movieData.name);
+    expect(newMovie.released_on.toISOString()).toBe(
+      movieData.released_on.toISOString()
+    );
+  });
 
-        // Mock the behavior of the create method to throw an error
-        jest.spyOn(MovieRepository, 'create').mockRejectedValueOnce(new Error("Movie creation failed"));
+  //show error when movie create fail
+  test("should throw an error when movie creation fails", async () => {
+    // Define the movie data to be added
+    const movieData = {
+      name: "Test Movie",
+      released_on: new Date("2024-03-21"),
+    };
 
-        // Assert that calling create method throws an error when movie creation fails
-        await expect(MovieRepository.create(movieData)).rejects.toThrow(Error);
-    });
+    // Mock the behavior of the create method to throw an error
+    jest
+      .spyOn(MovieRepository, "create")
+      .mockRejectedValueOnce(new Error("Movie creation failed"));
 
-    test("should delete a movie from the database", async () => {
-        // Define the movie data to be added
-        const movieData = {
-            name: "Test Movie",
-            released_on: new Date("2024-03-21"),
-        };
+    // Assert that calling create method throws an error when movie creation fails
+    await expect(MovieRepository.create(movieData)).rejects.toThrow(Error);
+  });
 
-        // Add the movie to the database
-        const newMovie = await MovieRepository.create(movieData);
+  test("should delete a movie from the database", async () => {
+    // Define the movie data to be added
+    const movieData = {
+      name: "Test Movie",
+      released_on: new Date("2024-03-21"),
+    };
 
-        // Ensure newMovie is defined before accessing its _id property
-        expect(newMovie).toBeDefined();
+    // Add the movie to the database
+    const newMovie = await MovieRepository.create(movieData);
 
-        // Convert ObjectId to string
-        const movieIdString = newMovie._id.toString();
+    // Ensure newMovie is defined before accessing its _id property
+    expect(newMovie).toBeDefined();
 
-        // Delete the movie from the database
-        const deletedMovie = await MovieRepository.deleteById(movieIdString);
+    // Convert ObjectId to string
+    const movieIdString = newMovie._id.toString();
 
-        // Assert that the deleted movie exists and has the correct data
-        expect(deletedMovie).not.toBeNull(); // Ensure deletedMovie is not null
-        if (deletedMovie) {
-            expect(deletedMovie.name).toBe(movieData.name);
-            expect(deletedMovie.released_on.toISOString()).toBe(movieData.released_on.toISOString());
-        }
-    });
+    // Delete the movie from the database
+    const deletedMovie = await MovieRepository.deleteById(movieIdString);
 
-
+    // Assert that the deleted movie exists and has the correct data
+    expect(deletedMovie).not.toBeNull(); // Ensure deletedMovie is not null
+    if (deletedMovie) {
+      expect(deletedMovie.name).toBe(movieData.name);
+      expect(deletedMovie.released_on.toISOString()).toBe(
+        movieData.released_on.toISOString()
+      );
+    }
+  });
 });
