@@ -2,9 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import { statusCodes } from "../utils/const/statusCode";
 import { statusMessages } from "../utils/const/statusCode";
 import { MovieRepository } from "../database/repository/movieRepo";
+import { movieModel } from "../database/models/movieModel";
 
 
-  export class MovieService {
+export class MovieService {
     static async getById(req: Request, res: Response, next: NextFunction) {
         try {
             const movieId = req.params.movieId;
@@ -18,7 +19,6 @@ import { MovieRepository } from "../database/repository/movieRepo";
             res.status(500).json({ error: "Internal Server Error" });
         }
     }
-
     static async getAll(req: Request, res: Response) {
         try {
             const movies = await MovieRepository.findAll();
@@ -40,17 +40,18 @@ import { MovieRepository } from "../database/repository/movieRepo";
         }
     }
 
-    static async deleteById(req: Request, res: Response) {
+    static async deleteById(movieId :string) {
         try {
-            const movieId = req.params.movieId;
+           
             const deletedMovie = await MovieRepository.deleteById(movieId);
             if (!deletedMovie) {
-                return res.status(404).json({ error: "Movie not found" });
+               throw new Error("Movie not found" );
             }
-            res.json(deletedMovie);
-        } catch (error) {
-            console.error("Error deleting movie by ID:", error);
-            res.status(500).json({ error: "Internal Server Error" });
+           return {message : 'success'};
+        } catch (error : any) {
+            // Handle the error
+            // throw new Error(error.message);
+            throw error;
         }
     }
 

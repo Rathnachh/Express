@@ -13,7 +13,7 @@ export class MovieRepository {
     return await movieModel.findByIdAndUpdate(movieId, movieData);
   }
 
-  static async deleteById(movieId: string) {
+  static async deleteById(movieId :string) {
     return await movieModel.findByIdAndDelete(movieId);
   }
 

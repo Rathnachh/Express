@@ -1,58 +1,11 @@
 import express, { Application, Request, Response, NextFunction } from "express";
-import { studentRouter } from "./routes/student.route";
 import connectToDatabase from "./utils/dbConnection";
-import { userRouter } from "./routes/user.route";
-import { movieRouter } from "./routes/movie.route";
-import "express-async-errors";
+import createServer from "./utils/server";
 // import bodyParser from "body-parser";
-import path from "path";
 
 // const app: Application = express();
-const app: Application = ((): Application => express())();
-const port = 3000;
-
-app.set("view engine", "ejs");
-// app.use(bodyParser.urlencoded({ extended: true, limit: "30mb" }));
-app.set("views", path.join(__dirname, "/views"));
-
-//global middleware
-app.use(express.json());
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello Express and TypeScript");
-  // res.status(StatusCodes.SUCCESS).send(StatusMessages[StatusCodes.SUCCESS]); //status code usage
-});
-
-app.get("/", (req: Request, res: Response) => {
-  // res
-  //   .status(StatusCodes.UNAUTHORIZED)
-  //   .send(StatusMessages[StatusCodes.UNAUTHORIZED]);
-});
-// app.get("/student", (req: Request, res: Response) => {
-//   res.send("Hello from student");
-// });
-
-//sub global middleware
-app.use("/student", studentRouter);
-app.use("/user", userRouter);
-app.use("/movie", movieRouter);
-
-// app.listen(port, (): void => {
-//   console.log(`Server is running on http://localhost:${port}`);
-// });
-
-// Global error handler middleware
-// app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-//   console.error(err.stack);
-//   res.status(500).send("Something went wrong.");
-// });
-
-// Global Error Handler
-app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
-  res.status(500).json({
-    message: err.message,
-  });
-});
+const app = createServer;
+const port = 4000; // Changed the port number to 4000
 
 connectToDatabase().then(() => {
   app.listen(port, () => {
@@ -61,12 +14,12 @@ connectToDatabase().then(() => {
 });
 
 // create global middleware that include the time that client request
-const requestLogger = (req: Request, res: Response, next: NextFunction) => {
-  console.log(`Request received at ${new Date()}`);
-  next();
-};
+// const requestLogger = (req: Request, res: Response, next: NextFunction) => {
+//   console.log(`Request received at ${new Date()}`);
+//   next();
+// };
 
-app.use(requestLogger);
+// app.use(requestLogger);
 
 // module.exports = app;
 export default app;
