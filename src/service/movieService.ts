@@ -1,6 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { statusCodes } from "../utils/const/statusCode";
-import { statusMessages } from "../utils/const/statusCode";
 import { MovieRepository } from "../database/repository/movieRepo";
 import { movieModel } from "../database/models/movieModel";
 
@@ -54,16 +52,32 @@ export class MovieService {
             throw error;
         }
     }
-
+    
     static async create(req: Request, res: Response) {
         try {
-            const movieData = req.body;
-            const newMovie = await MovieRepository.create(movieData);
-            res.json(newMovie);
+            // console.log("Request Body:", req.body); // Log request body
+    
+            // Extract movie data from request body
+            const { name, released_on } = req.body;
+    
+            // Check if the required fields are present in the request body
+            if (!name || !released_on) {
+                return res.status(400).json({ error: "Missing required fields" });
+            }
+    
+            // Call the create method of the MovieRepository to create a new movie
+            const newMovie = await MovieRepository.create({ name, released_on });
+    
+            // Return the newly created movie in the response
+            res.status(201).json(newMovie);
         } catch (error) {
+            // Log the error for debugging purposes
             console.error("Error creating movie:", error);
+            // Return an internal server error response
             res.status(500).json({ error: "Internal Server Error" });
         }
     }
+    
+    
 }
 

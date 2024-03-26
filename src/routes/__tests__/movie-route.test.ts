@@ -24,10 +24,12 @@ describe("GET /movies/:moveId", () => {
     expect(response.status).toBe(200);
   });
 
-  test("POST /movies should return status 201 for valid movie data", async () => {
+  test("POST /movies should return status 404 for valid movie data", async () => {
     const movieData = { name: "Test Movie", released_on: "2024-03-21" };
     const existingMovie = await MovieRepository.create(movieData);
     const response = await supertest(app).post("/movies").send(existingMovie);
     expect(response.status).toBe(404);
   });
+  
+  
 });

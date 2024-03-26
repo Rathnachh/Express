@@ -26,6 +26,6 @@ deleteById: async function (req: Request, res: Response, next: NextFunction) {
   },
   
   create: async function (req: Request, res: Response) {
-    await MovieService.create(req.body, res); // Pass movie data
+    await MovieService.create(req, res); // Pass movie data
   },
 };
