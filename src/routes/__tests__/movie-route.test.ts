@@ -7,6 +7,7 @@ import { MovieRepository } from "../../database/repository/movieRepo";
 import { dbConnect, dbDisconnect } from "../../utils/test-utils/dbhandler";
 
 describe("GET /movies/:moveId", () => {
+  let movieId: string;
   let mongoServer: MongoMemoryServer;
 
   beforeAll(async () => {
@@ -30,6 +31,16 @@ describe("GET /movies/:moveId", () => {
     const response = await supertest(app).post("/movies").send(existingMovie);
     expect(response.status).toBe(404);
   });
-  
+  // test("DELETE /movies/:movieId should return status 200 for valid deletion", async () => {
+  //   const response = await supertest(app).delete(`/movie/${movieId}`);
+  //   expect(response.status).toBe(200);
+  // });
+
+  // test("DELETE /movies/:movieId should return status 404 for invalid movie ID", async () => {
+  //   const invalidMovieId = "invalid_id";
+  //   const response = await supertest(app).delete(`/movie/${invalidMovieId}`);
+  //   expect(response.status).toBe(404);
+  // });
+
   
 });
