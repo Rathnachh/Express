@@ -42,32 +42,52 @@ import {
   Request as TsoaRequest,
   Response as TsoaResponse,
   Body,
+  Delete,
+  Query,
+  Queries
 } from "tsoa";
+import { skip } from "node:test";
 
+interface QueryParams {
+  limit?: string;
+  page?: string;
+}
+
+const movieService = new MovieService();
 @Route("movie")
 export class MovieController {
   @Get("/")
-  public async getAll(): Promise<any> {
-    try {
-      const movieService = new MovieService();
-      const movies = await movieService.getAll();
-      if (Array.isArray(movies) && movies.length > 0) {
-        return {
-          status: "success",
-          message: "Movies are found",
-          data: movies,
-        };
-      } else {
-        throw new Error("No movies found");
-      }
-    } catch (error: any) {
-      throw new Error(error.message || "Failed to fetch movies");
-    }
+  public async getAll(
+    @Queries() queryParams: QueryParams
+): Promise<any> {
+  try {
+    const pageNumber = queryParams ? parseInt(queryParams.page as string) : 1;
+    const pageSize = queryParams ? parseInt(queryParams.limit as string) : 10;
+
+    const movie = await movieService.getAll(pageNumber, pageSize)
+
+    const totalCount = await movieService.getAllCount();
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    return {
+      status: "success",
+      message: "Users are found",
+      data: movie,
+      meta: {
+        page: pageNumber,
+        limit: pageSize,
+        total: totalCount,
+        totalPages: totalPages,
+      },
+    };
+  } catch (err: any) {
+    throw new Error(err.message);
   }
+}
 
   @Get("/:movieId")
   public async getById(movieId: string): Promise<any> {
-    try{
+    try {
       const movieService = new MovieService();
       const movie = await movieService.getById(movieId);
       if (movie) {
@@ -79,8 +99,8 @@ export class MovieController {
       } else {
         throw new Error("Movie not found");
       }
-    }catch(error:any){
-       throw new Error(error.message || "Updated Failed")
+    } catch (error: any) {
+      throw new Error(error.message || "Updated Failed");
     }
   }
 
@@ -96,8 +116,14 @@ export class MovieController {
     }
   }
 
-  
-
-
-
+  @Delete("/:movieId")
+  public async deleteById(movieId: string): Promise<any> {
+    try {
+      const movieService = new MovieService();
+      await movieService.deleteById(movieId);
+      return { message: "Movie deleted successfully" };
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to delete movie");
+    }
+  }
 }

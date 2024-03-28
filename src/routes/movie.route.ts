@@ -1,5 +1,5 @@
 // import express from "express";
-import express, { Request, Response, NextFunction } from "express";
+import express, { Request, Response, NextFunction, query } from "express";
 import { MovieController } from "../controllers/movie.controller";
 // import { validateMongooseId } from "../middleware/mongoose";
 import { validate } from "../middleware/validate";
@@ -18,7 +18,7 @@ movieRouter.get(
   "/",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const movie = await movieController.getAll();
+      const movie = await movieController.getAll(req.query);
       res.status(200).json(movie);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -33,14 +33,16 @@ movieRouter.post(
     try {
       const { name, released_on } = req.body;
       const createdMovie = await movieController.create({ name, released_on });
-      res.status(201).json({createdMovie});
+      res.status(201).json({ createdMovie });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   }
 );
 
-movieRouter.get("/:movieId", async (req: Request, res: Response, next: NextFunction) => {
+movieRouter.get(
+  "/:movieId",
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const movieId = req.params.movieId;
       const movie = await movieController.getById(movieId);
@@ -48,5 +50,15 @@ movieRouter.get("/:movieId", async (req: Request, res: Response, next: NextFunct
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
-  });
-  
+  }
+);
+
+movieRouter.delete("/:movieId", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const movieId = req.params.movieId;
+    const result = await movieController.deleteById(movieId);
+    res.status(200).json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});

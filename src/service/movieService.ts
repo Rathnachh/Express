@@ -83,8 +83,28 @@ export class MovieService {
     this.movieRepo = new MovieRepository();
   }
 
-  async getAll(): Promise<any> {
-    return await this.movieRepo.getAll();
+  // async getAll(page: number, pageSize: number): Promise<{ movies: Movie[], totalCount: number }> {
+  //   try {
+  //     const skip = Math.max((page - 1) * pageSize, 0);    
+  //     const [movies, totalCount] = await Promise.all([
+  //       this.movieRepo.getAll(skip, pageSize),
+  //       this.movieRepo.countAll()
+  //     ]);
+
+  //     return { movies, totalCount };
+  //   } catch (error) {
+  //     console.error("Error fetching movies:", error);
+  //     throw error;
+  //   }
+  // }
+
+  async getAll(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    return await movieModel.find({}).skip(skip).limit(limit);
+  }
+
+  async getAllCount() {
+    return await movieModel.countDocuments({});
   }
 
   async getById(movieId: string): Promise<Movie | null> {
@@ -95,8 +115,9 @@ export class MovieService {
       console.error("Error fetching movie by ID:", error);
       throw error;
     }
+
+
   }
-  
   
   async create(movie: Movie): Promise<any> {
     try {
@@ -108,12 +129,25 @@ export class MovieService {
     }                                                               
   }
  
-//   async delete(): Promise<any>{
-//     try{
-//         await this.movieRepo.deleteById(movieId)
-//     }catch (error){
-//         console.error("Error deleting movie:", error);
+   async deleteById(movieId: string): Promise<any> {
+    try {
+      return await this.movieRepo.deleteById(movieId);
+    } catch (error) {
+      console.error("Error deleting movie:", error);
+      throw error;
+    }
+  }
+
+//   async update(movieId: string, movieData: Partial<Movie>): Promise<Movie | null> {
+//     try {
+//         const updatedMovie = await movieModel.findByIdAndUpdate(movieId, movieData, { new: true });
+//         return updatedMovie;
+//     } catch (error) {
+//         console.error("Error updating movie in repository:", error);
 //         throw error;
 //     }
-//   }
+// }
+
 }
+
+
