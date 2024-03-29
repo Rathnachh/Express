@@ -1,12 +1,9 @@
 {
-    "entryFile": "src/app.ts",
-    "noImplicitAdditionalProperties": "throw-on-extras",
-    "controllerPathGlobs": ["src/**/*movie.controller.ts"],
-    "spec": {
-      "outputDirectory": "src",
-      "specVersion": 3
-    },
-    "routes": {
-      "routesDir": "src"
-    }
+  "entryFile": "src/app.ts",
+  "noImplicitAdditionalProperties": "throw-on-extras",
+  "controllerPathGlobs": ["src/controllers/*.controller.ts"],
+  "spec": {
+    "outputDirectory": "src",
+    "specVersion": 3
   }
+}

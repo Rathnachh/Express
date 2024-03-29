@@ -44,11 +44,11 @@ import {
   Body,
   Delete,
   Query,
-  Queries
+  Queries,
 } from "tsoa";
 import { skip } from "node:test";
 
-interface QueryParams {
+interface MovieParams {
   limit?: string;
   page?: string;
 }
@@ -57,33 +57,31 @@ const movieService = new MovieService();
 @Route("movie")
 export class MovieController {
   @Get("/")
-  public async getAll(
-    @Queries() queryParams: QueryParams
-): Promise<any> {
-  try {
-    const pageNumber = queryParams ? parseInt(queryParams.page as string) : 1;
-    const pageSize = queryParams ? parseInt(queryParams.limit as string) : 10;
+  public async getAll(@Queries() queryParams: MovieParams): Promise<any> {
+    try {
+      const pageNumber = queryParams ? parseInt(queryParams.page as string) : 1;
+      const pageSize = queryParams ? parseInt(queryParams.limit as string) : 10;
 
-    const movie = await movieService.getAll(pageNumber, pageSize)
+      const movie = await movieService.getAll(pageNumber, pageSize);
 
-    const totalCount = await movieService.getAllCount();
-    const totalPages = Math.ceil(totalCount / pageSize);
+      const totalCount = await movieService.getAllCount();
+      const totalPages = Math.ceil(totalCount / pageSize);
 
-    return {
-      status: "success",
-      message: "Users are found",
-      data: movie,
-      meta: {
-        page: pageNumber,
-        limit: pageSize,
-        total: totalCount,
-        totalPages: totalPages,
-      },
-    };
-  } catch (err: any) {
-    throw new Error(err.message);
+      return {
+        status: "success",
+        message: "Users are found",
+        data: movie,
+        meta: {
+          page: pageNumber,
+          limit: pageSize,
+          total: totalCount,
+          totalPages: totalPages,
+        },
+      };
+    } catch (err: any) {
+      throw new Error(err.message);
+    }
   }
-}
 
   @Get("/:movieId")
   public async getById(movieId: string): Promise<any> {

@@ -5,9 +5,9 @@ export const validate =
   (schema: z.AnyZodObject) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await schema.parseAsync(req.body);
-        next();
+      await schema.parse(req.body);
+      next();
     } catch (error) {
-        next(new Error('Moviename must be at least 3 characters long'));
+      res.status(400).json({ error });
     }
   };

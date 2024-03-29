@@ -85,7 +85,7 @@ export class MovieService {
 
   // async getAll(page: number, pageSize: number): Promise<{ movies: Movie[], totalCount: number }> {
   //   try {
-  //     const skip = Math.max((page - 1) * pageSize, 0);    
+  //     const skip = Math.max((page - 1) * pageSize, 0);
   //     const [movies, totalCount] = await Promise.all([
   //       this.movieRepo.getAll(skip, pageSize),
   //       this.movieRepo.countAll()
@@ -110,26 +110,24 @@ export class MovieService {
   async getById(movieId: string): Promise<Movie | null> {
     try {
       const movie = await this.movieRepo.getById(movieId);
-      return movie? movie.toObject() : null; 
+      return movie ? movie.toObject() : null;
     } catch (error) {
       console.error("Error fetching movie by ID:", error);
       throw error;
     }
-
-
   }
-  
+
   async create(movie: Movie): Promise<any> {
     try {
-      const newMovie = await this.movieRepo.create(movie); 
+      const newMovie = await this.movieRepo.create(movie);
       return newMovie;
     } catch (error) {
       console.error("Error creating movie:", error);
       throw error;
-    }                                                               
+    }
   }
- 
-   async deleteById(movieId: string): Promise<any> {
+
+  async deleteById(movieId: string): Promise<any> {
     try {
       return await this.movieRepo.deleteById(movieId);
     } catch (error) {
@@ -137,17 +135,4 @@ export class MovieService {
       throw error;
     }
   }
-
-//   async update(movieId: string, movieData: Partial<Movie>): Promise<Movie | null> {
-//     try {
-//         const updatedMovie = await movieModel.findByIdAndUpdate(movieId, movieData, { new: true });
-//         return updatedMovie;
-//     } catch (error) {
-//         console.error("Error updating movie in repository:", error);
-//         throw error;
-//     }
-// }
-
 }
-
-
