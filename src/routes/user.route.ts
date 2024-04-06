@@ -6,6 +6,7 @@ import { UserController } from "../controllers/user.controller";
 import { validateEmail } from "../middleware/validateEmail";
 import userSchema from "../schema/userSchema";
 import { validationmongoID } from "../middleware/validationMongoId";
+import { generateEmailVerificationToken } from "src/utils/randomToken";
 
 interface QueryParams {
   limit: number;
@@ -15,25 +16,25 @@ interface QueryParams {
 export const userRouter = express.Router();
 const userController = new UserController();
 
-userRouter.get("/", async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { limit, page } = req.query;
+// userRouter.get("/", async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const { limit, page } = req.query;
 
-    const options: QueryParams = {
-      limit: parseInt(limit as string),
-      page: parseInt(page as string),
-    };
+//     const options: QueryParams = {
+//       limit: parseInt(limit as string),
+//       page: parseInt(page as string),
+//     };
 
-    const users = await userController.getAll(options);
-    res.status(200).json({
-      message: "GET success",
-      users: users.usersData,
-      paginate: users.pagination,
-    });
-  } catch (error: unknown) {
-    next(error);
-  }
-});
+//     const users = await userController.getAll(options);
+//     res.status(200).json({
+//       message: "GET success",
+//       users: users.usersData,
+//       paginate: users.pagination,
+//     });
+//   } catch (error: unknown) {
+//     next(error);
+//   }
+// });
 
 userRouter.post(
   "/",
@@ -53,19 +54,20 @@ userRouter.post(
     }
   }
 );
+userRouter.get("/verify", userController.verifyEmail);
 
-userRouter.get(
-  "/:userId",
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userId = req.params.userId;
-      const user = await userController.getById(userId);
-      res.status(200).json(user);
-    } catch (error: unknown) {
-      next(error);
-    }
-  }
-);
+// router.get(
+//   "/verify",
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const token = req.query.token as string;
+//       await userController.verifyEmail(token);
+//       res.status(200).json({ message: "Email verification successful" });
+//     } catch (error) {
+//       next(error);
+//     }
+//   }
+// );
 
 userRouter.delete(
   "/:userId",

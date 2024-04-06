@@ -20,7 +20,7 @@ export async function sendVerificationEmail(
       from: process.env.USER,
       to: user.email,
       subject: "Verify your email address",
-      html: `Please click <a href="${verificationLink}">here</a> to verify your email address.`,
+      html: `<p>Please click this link to verify <a href="http://localhost:4000/user/verify?token${verificationLink}">Verify Email</a></p>`,
     };
 
     // Send email

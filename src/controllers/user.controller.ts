@@ -3,6 +3,7 @@ import { UserService } from "../service/userService";
 import { User } from "../database/models/userModel";
 import { generateEmailVerificationToken } from "../utils/randomToken";
 import { saveToken } from "../service/tokenService";
+import { checkTokenExists } from "../service/tokenService";
 // import { generateEmailVerificationToken, saveToken } from "../service/tokenService";
 import {
   Route,
@@ -29,34 +30,33 @@ const userService = new UserService();
 @Tags("User")
 export class UserController {
   @Get("/")
-  public async getAll(@Queries() options: QueryParams): Promise<any> {
-    try {
-      const users = await userService.getAll(options);
+  // public async getAll(@Queries() options: QueryParams): Promise<any> {
+  //   try {
+  //     const users = await userService.getAll(options);
 
-      return users;
-    } catch (err: any) {
-      throw new Error(err.message);
-    }
-  }
+  //     return users;
+  //   } catch (err: any) {
+  //     throw new Error(err.message);
+  //   }
+  // }
 
-  @Get("/:userId")
-  public async getById(userId: string): Promise<any> {
-    try {
-      const user = await userService.getById(userId);
-      if (user) {
-        return {
-          status: "success",
-          message: "User is found",
-          data: user,
-        };
-      } else {
-        throw new Error("User not found");
-      }
-    } catch (error: any) {
-      throw new Error(error.message || "Failed to get user");
-    }
-  }
-
+  // @Get("/:userId")
+  // public async getById(userId: string): Promise<any> {
+  //   try {
+  //     const user = await userService.getById(userId);
+  //     if (user) {
+  //       return {
+  //         status: "success",
+  //         message: "User is found",
+  //         data: user,
+  //       };
+  //     } else {
+  //       throw new Error("User not found");
+  //     }
+  //   } catch (error: any) {
+  //     throw new Error(error.message || "Failed to get user");
+  //   }
+  // }
   @Post("/")
   public async create(@Body() requestBody: any): Promise<any> {
     try {
@@ -68,9 +68,9 @@ export class UserController {
         isVerified,
       });
 
-      const token = generateEmailVerificationToken(newUser.id);
+      const token = generateEmailVerificationToken(newUser._id);
 
-      await saveToken(newUser.id, token);
+      await saveToken(newUser._id, token);
       await sendVerificationEmail(newUser, token);
       // return newUser;
       return {
@@ -80,33 +80,9 @@ export class UserController {
       };
       // return { message: "User deleted successfully" };
     } catch (error: any) {
-      throw error;
+      throw new Error(error);
     }
   }
-
-  // @Post("/")
-  // public async create(@Body() requestBody: any): Promise<any> {
-  //   try {
-  //     const user = await userService.create(requestBody);
-
-  //     // Generate verification token
-  //     const token = generateEmailVerificationToken(user.id);
-
-  //     // Save token
-  //     await saveToken(user.id, token);
-
-  //     // Generate verification link (assuming you have a route for verification)
-  //     const verificationLink = `https://www.example.com/verify?token=${token}`;
-
-  //     return {
-  //       status: "success",
-  //       message: "User created successfully. Verification email sent.",
-  //       data: user,
-  //     };
-  //   } catch (err: any) {
-  //     throw new Error(err.message);
-  //   }
-  // }
 
   @Delete("/:userId")
   public async deleteById(userId: string): Promise<any> {
@@ -115,6 +91,18 @@ export class UserController {
       return { message: "User deleted successfully" };
     } catch (error: any) {
       throw new Error(error.message || "Failed to delete user");
+    }
+  }
+
+  public async verifyEmail(req: Request, res: Response): Promise<void> {
+    try {
+      const token = req.query.token as string; // Extract token from request query
+      // Call the appropriate method from your service to handle email verification
+      // For example:
+      // await userService.verifyEmail(token);
+      res.status(200).json({ message: "Email verification successful" });
+    } catch (error: any) {
+      throw new Error (error.message || "Email verification failed");
     }
   }
 }

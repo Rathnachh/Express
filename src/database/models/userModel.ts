@@ -7,9 +7,9 @@ export interface User {
   isVerified: boolean;
 }
 const UserSchema = new mongoose.Schema({
-  userId: {
-    type: String,
-  },
+  // userId: {
+  //   type: String,
+  // },
   name: {
     type: String,
     trim: true,
@@ -18,11 +18,12 @@ const UserSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
-  password:{
+  password: {
     type: String,
   },
-  isVerified:{
-    type: Boolean, 
-  }
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
 });
 export const userModel = mongoose.model("User", UserSchema);
