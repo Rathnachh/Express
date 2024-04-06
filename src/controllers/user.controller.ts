@@ -1,108 +1,57 @@
 import { Request, Response } from "express";
 import { UserService } from "../service/userService";
-import { User } from "../database/models/userModel";
 import { generateEmailVerificationToken } from "../utils/randomToken";
 import { saveToken } from "../service/tokenService";
-import { checkTokenExists } from "../service/tokenService";
-// import { generateEmailVerificationToken, saveToken } from "../service/tokenService";
-import {
-  Route,
-  Get,
-  Post,
-  Request as TsoaRequest,
-  Response as TsoaResponse,
-  Body,
-  Delete,
-  Query,
-  Queries,
-  Tags,
-} from "tsoa";
 import { sendVerificationEmail } from "../utils/emailSender";
 
-export interface QueryParams {
-  limit: number;
-  page: number;
-}
-
-const userService = new UserService();
-
-@Route("user")
-@Tags("User")
 export class UserController {
-  @Get("/")
-  // public async getAll(@Queries() options: QueryParams): Promise<any> {
-  //   try {
-  //     const users = await userService.getAll(options);
+  private userService: UserService;
 
-  //     return users;
-  //   } catch (err: any) {
-  //     throw new Error(err.message);
-  //   }
-  // }
+  constructor() {
+    this.userService = new UserService();
+  }
 
-  // @Get("/:userId")
-  // public async getById(userId: string): Promise<any> {
-  //   try {
-  //     const user = await userService.getById(userId);
-  //     if (user) {
-  //       return {
-  //         status: "success",
-  //         message: "User is found",
-  //         data: user,
-  //       };
-  //     } else {
-  //       throw new Error("User not found");
-  //     }
-  //   } catch (error: any) {
-  //     throw new Error(error.message || "Failed to get user");
-  //   }
-  // }
-  @Post("/")
-  public async create(@Body() requestBody: any): Promise<any> {
+  public async create(req: Request, res: Response): Promise<void> {
     try {
-      const { name, email, password, isVerified } = requestBody;
-      const newUser = await userService.create({
+      const { name, email, password } = req.body;
+      const newUser = await this.userService.create({
         name,
         email,
         password,
-        isVerified,
+        isVerified: false, // Ensure that isVerified is initially set to false
       });
 
       const token = generateEmailVerificationToken(newUser._id);
-
       await saveToken(newUser._id, token);
       await sendVerificationEmail(newUser, token);
-      // return newUser;
-      return {
+
+      res.status(201).json({
         status: "success",
         message: "User created successfully",
         data: newUser,
-      };
-      // return { message: "User deleted successfully" };
+      });
     } catch (error: any) {
-      throw new Error(error);
+      res.status(500).json({ error: error.message });
     }
   }
 
-  @Delete("/:userId")
-  public async deleteById(userId: string): Promise<any> {
+  public async deleteById(req: Request, res: Response): Promise<void> {
     try {
-      await userService.deleteById(userId);
-      return { message: "User deleted successfully" };
+      const userId = req.params.userId;
+      await this.userService.deleteById(userId);
+      res.status(200).json({ message: "User deleted successfully" });
     } catch (error: any) {
-      throw new Error(error.message || "Failed to delete user");
+      res.status(500).json({ error: error.message });
     }
   }
 
   public async verifyEmail(req: Request, res: Response): Promise<void> {
     try {
       const token = req.query.token as string; // Extract token from request query
-      // Call the appropriate method from your service to handle email verification
-      // For example:
-      // await userService.verifyEmail(token);
+      await this.userService.verifyEmail(token);
       res.status(200).json({ message: "Email verification successful" });
     } catch (error: any) {
-      throw new Error (error.message || "Email verification failed");
+      res.status(500).json({ error: error.message || "Email verification failed" });
     }
   }
 }

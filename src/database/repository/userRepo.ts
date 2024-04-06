@@ -1,4 +1,4 @@
-import { QueryParams } from "src/controllers/user.controller";
+// import { QueryParams } from "src/controllers/user.controller";
 import { User, userModel } from "../models/userModel"; // Assuming you have a UserModel
 
 interface PaginateType {
@@ -11,24 +11,24 @@ export class UserRepository {
     return await userModel.findById(userId);
   }
 
-  async getAll(options: QueryParams) {
-    const { page, limit } = options;
+  // async getAll(options: QueryParams) {
+  //   const { page, limit } = options;
 
-    const skip: number = (page - 1) * limit;
+  //   const skip: number = (page - 1) * limit;
 
-    const usersData = await userModel.find().skip(skip).limit(limit).exec();
+  //   const usersData = await userModel.find().skip(skip).limit(limit).exec();
 
-    const totalDocuments: number = await userModel.countDocuments();
-    const totalPages: number = Math.ceil(totalDocuments / limit);
+  //   const totalDocuments: number = await userModel.countDocuments();
+  //   const totalPages: number = Math.ceil(totalDocuments / limit);
 
-    const pagination: PaginateType = {
-      currentPage: page,
-      totalPages: totalPages,
-      totalDocuments: totalDocuments,
-    };
+  //   const pagination: PaginateType = {
+  //     currentPage: page,
+  //     totalPages: totalPages,
+  //     totalDocuments: totalDocuments,
+  //   };
 
-    return { usersData, pagination };
-  }
+  //   return { usersData, pagination };
+  // }
 
   async countAll(): Promise<number> {
     return await userModel.countDocuments({});

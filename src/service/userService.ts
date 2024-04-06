@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { UserRepository } from "../database/repository/userRepo";
 import { User, userModel } from "../database/models/userModel";
 import bcrypt from "bcrypt";
-import { QueryParams } from "src/controllers/user.controller";
+// import { QueryParams } from "src/controllers/user.controller";
 
 import { generateEmailVerificationToken } from "../utils/randomToken";
 import { saveToken } from "../service/tokenService";
@@ -15,23 +15,13 @@ export class UserService {
     this.userRepo = new UserRepository();
   }
 
-  async getAll(options: QueryParams) {
-    return await this.userRepo.getAll(options);
-  }
+  // async getAll(options: QueryParams) {
+  //   return await this.userRepo.getAll(options);
+  // }
 
   async getAllCount() {
     return await userModel.countDocuments({});
   }
-
-  // async getById(userId: string): Promise<User | null> {
-  //   try {
-  //     const user = await this.userRepo.getById(userId);
-  //     return user ? user.toObject() : null;
-  //   } catch (error) {
-  //     console.error("Error fetching user by ID:", error);
-  //     throw error;
-  //   }
-  // }
 
   async create(user: User): Promise<any> {
     try {
@@ -57,19 +47,36 @@ export class UserService {
       throw error;
     }
   }
-  async updateVerificationStatus(token: string) {
+
+  async updateVerificationStatus(userId: string): Promise<void> {
     try {
-      const user = await this.userRepo.getUserByToken({ token });
-      // Update user's isVerified status to true
-      if (!user) {
-        throw new Error("User not found");
-      }
-      const findUser = await this.userRepo.getById({ userId: user.id });
-      user.isVerified = true;
-      return await user.save(); // Ensure to await the save operation
-    } catch (error: any) {
-      console.error("Error updating verification status:", error);
+      // Find the user by userId and update the isVerified field to true
+      await userModel.findByIdAndUpdate(userId, { isVerified: true });
+    } catch (error) {
+      console.error("Error updating user verification status:", error);
       throw error;
     }
   }
+
+ async verifyEmail(token: string): Promise<void> {
+    try {
+      const user = await this.findUserByToken(token);
+      if (!user) {
+        throw new Error("User not found");
+      }
+      await this.updateVerificationStatus(user._id);
+    } catch (error:any) {
+      throw new Error(error.message || "Failed to verify email");
+    }
+  }
+  public async findUserByToken(token: string): Promise<any> {
+    try {
+      return await userModel.findOne({ token });
+    } catch (error) {
+      console.error("Error finding user by token:", error);
+      throw error;
+    }
+  }
+
 }
+
