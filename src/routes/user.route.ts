@@ -7,8 +7,7 @@ import { validateEmail } from "../middleware/validateEmail";
 import userSchema from "../schema/userSchema";
 import { UserService } from "../service/userService";
 import { userModel } from "../database/models/userModel";
-import { validationmongoID } from "../middleware/validationMongoId";
-import { generateEmailVerificationToken } from "src/utils/randomToken";
+import { verifyPassword } from "../utils/jwt";
 
 interface QueryParams {
   limit: number;
@@ -67,6 +66,39 @@ userRouter.get(
         res.status(400).json({ message: "Invalid or expired token" });
       }
     } catch (error: unknown) {
+      next(error);
+    }
+  }
+);
+
+userRouter.post(
+  "/login",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, password } = req.body;
+
+      // Verify the user's credentials
+      const user = await userService.findByEmail(email);
+      if (!user) {
+        // User not found
+        return res
+          .status(401)
+          .json({ message: "Login failed. Email and password are incorrect." });
+      }
+
+      // Verify the password using the verifyPassword function
+      const validPassword = await verifyPassword(password, user.password);
+      if (!validPassword) {
+        // Invalid password
+        return res
+          .status(401)
+          .json({ message: "Login failed. Email and password are incorrect." });
+      }
+
+      // Send success message along with token
+      res.status(200).json({ message: "Login Successful" });
+    } catch (error: any) {
+      // Handle any errors
       next(error);
     }
   }

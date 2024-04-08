@@ -6,6 +6,9 @@ import swaggerUi from "swagger-ui-express";
 import * as swaggerDocument from "./swagger.json";
 // import { sendVerificationEmail } from "./";
 import { sendVerificationEmail } from "./utils/emailSender";
+import dotenv from 'dotenv';
+dotenv.config();
+
 
 const app: Express = express();
 

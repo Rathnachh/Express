@@ -1,5 +1,8 @@
 import connectToDatabase from "./utils/dbConnection";
 import app from "./app";
+import dotenv from 'dotenv';
+dotenv.config();
+
 
 // const app: Application = express();
 const port = 4000; // Changed the port number to 4000

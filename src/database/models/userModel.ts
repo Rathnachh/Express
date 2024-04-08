@@ -1,11 +1,15 @@
 import mongoose from "mongoose";
 import { boolean, string } from "zod";
+import bcrypt from "bcrypt";
 export interface User {
   name: string;
   email: string;
   password: string;
-  isVerified: boolean;
+  isVerified: boolean; 
 }
+
+
+
 const UserSchema = new mongoose.Schema({
   // userId: {
   //   type: String,

@@ -1,7 +1,10 @@
+require("dotenv").config();
+
 import { Request, Response, NextFunction } from "express";
 import { UserRepository } from "../database/repository/userRepo";
 import { User, userModel } from "../database/models/userModel";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 // import { QueryParams } from "src/controllers/user.controller";
 
 import { generateEmailVerificationToken } from "../utils/randomToken";
@@ -58,14 +61,14 @@ export class UserService {
     }
   }
 
- async verifyEmail(token: string): Promise<void> {
+  async verifyEmail(token: string): Promise<void> {
     try {
       const user = await this.findUserByToken(token);
       if (!user) {
         throw new Error("User not found");
       }
       await this.updateVerificationStatus(user._id);
-    } catch (error:any) {
+    } catch (error: any) {
       throw new Error(error.message || "Failed to verify email");
     }
   }
@@ -78,5 +81,34 @@ export class UserService {
     }
   }
 
-}
+  async login(email: string, password: string): Promise<string> {
+    try {
+      // Find user by email
+      const user = await userModel.findOne({ email });
+      if (!user) {
+        throw new Error("User not found");
+      }
+      if (!user.password) {
+        throw new Error("User password not found");
+      }
 
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: user._id },
+        process.env.JWT_SECRET as string,
+        { expiresIn: process.env.JWT_EXPIRES_IN }
+      );
+      return token;
+    } catch (error) {
+      console.error("Error logging in:", error);
+      throw error;
+    }
+  }
+  async findByEmail(email: string): Promise<User | null> {
+    return await userModel.findOne({ email });
+  }
+
+  // public async findByEmail(email: string): Promise<User | null> {
+  //   return await userModel.findOne({ email });
+  // }
+}
